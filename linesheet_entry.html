@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dress Line Sheet Data Entry</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f5f7;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 0 auto;
+        }
+        h2 {
+            margin-top: 0;
+            color: #1a1a1a;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+        }
+        .row .form-group {
+            flex: 1;
+        }
+        button {
+            width: 100%;
+            background-color: #0F9D58;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0b8043;
+        }
+        .output-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px dashed #cccccc;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            height: 60px;
+            margin-top: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            background: #fff;
+            font-family: monospace;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Dress Line Sheet Entry</h2>
+    
+    <div class="form-group">
+        <label for="imgUrl">Product Image URL</label>
+        <input type="text" id="imgUrl" placeholder="https://example.com">
+    </div>
+
+    <div class="form-group">
+        <label for="sku">Style Name & SKU</label>
+        <input type="text" id="sku" placeholder="Sophia Floral Maxi (DR-2027-01)">
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label for="silhouette">Silhouette / Length</label>
+            <input type="text" id="silhouette" placeholder="Tiered Maxi">
+        </div>
+        <div class="form-group">
+            <label for="fabric">Fabric & Lining</label>
+            <input type="text" id="fabric" placeholder="100% Linen, Unlined">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label for="colors">Colors / Prints</label>
+            <input type="text" id="colors" placeholder="Sage Green, Blush Pink">
+        </div>
+        <div class="form-group">
+            <label for="sizes">Size Breakdowns</label>
+            <input type="text" id="sizes" placeholder="1-2-2-1">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group">
+            <label for="wholesale">Wholesale Price ($)</label>
+            <input type="number" id="wholesale" placeholder="45.00" step="0.01" oninput="calculateMSRP()">
+        </div>
+        <div class="form-group">
+            <label for="msrp">MSRP / Retail ($)</label>
+            <input type="number" id="msrp" placeholder="90.00" step="0.01">
+        </div>
+        <div class="form-group">
+            <label for="moq">Pack Size / MOQ</label>
+            <input type="text" id="moq" placeholder="6 units">
+        </div>
+    </div>
+
+    <button onclick="generateRow()">Generate Google Sheets Row</button>
+
+    <div class="output-box">
+        <label style="margin:0;"><strong>Paste Ready Output:</strong> (Click button, copy text below, click cell A6 in Sheets, and paste)</label>
+        <textarea id="output" readonly placeholder="Your generated data row will appear here..."></textarea>
+    </div>
+</div>
+
+<script>
+    // Automatically suggest double markup for MSRP
+    function calculateMSRP() {
+        const wholesale = parseFloat(document.getElementById('wholesale').value);
+        if (!isNaN(wholesale)) {
+            document.getElementById('msrp').value = (wholesale * 2).toFixed(2);
+        }
+    }
+
+    function generateRow() {
+        const img = document.getElementById('imgUrl').value || "No Image";
+        // Format image string as a formula if a URL is provided
+        const imgFormula = img !== "No Image" ? `=IMAGE("${img}")` : "No Image";
+        
+        const sku = document.getElementById('sku').value;
+        const silhouette = document.getElementById('silhouette').value;
+        const fabric = document.getElementById('fabric').value;
+        const colors = document.getElementById('colors').value;
+        const sizes = document.getElementById('sizes').value;
+        const wholesale = document.getElementById('wholesale').value ? "$" + parseFloat(document.getElementById('wholesale').value).toFixed(2) : "";
+        const msrp = document.getElementById('msrp').value ? "$" + parseFloat(document.getElementById('msrp').value).toFixed(2) : "";
+        const moq = document.getElementById('moq').value;
+
+        // Create tab-separated values so it formats perfectly across columns when pasted
+        const resultString = `${imgFormula}\t${sku}\t${silhouette}\t${fabric}\t${colors}\t${sizes}\t${wholesale}\t${msrp}\t${moq}`;
+        
+        document.getElementById('output').value = resultString;
+        document.getElementById('output').select();
+    }
+</script>
+
+</body>
+</html>
